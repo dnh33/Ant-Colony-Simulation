@@ -1,0 +1,48 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Prevents scrollbars from appearing */
+}
+
+#simulation-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+canvas {
+  flex-grow: 1; /* Allows canvas to fill available space */
+  background-color: #eaeaea; /* So it's visible for debugging */
+}
+
+#controls {
+  height: 50px; /* Adjust based on actual height of controls */
+  display: flex;
+  justify-content: center; /* Centers buttons */
+  align-items: center; /* Vertically centers buttons */
+  background-color: #f0f0f0; /* Background color for visibility */
+  border-top: 1px solid #d3d3d3; /* Adds a subtle top border */
+}
+
+button {
+  padding: 10px 15px;
+  margin: 0 5px; /* Adds spacing between buttons */
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button.active {
+  background-color: #004085; /* Darker shade for active mode */
+}

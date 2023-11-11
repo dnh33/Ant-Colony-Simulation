@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- The character set, the viewport, and the title are not related to
+    the simulation, but are instead related to the web page itself. -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ant Colony Simulation</title>
+
+    <!-- The simulation has its own stylesheet. -->
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- The simulation has its own script. -->
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <!-- The simulation is contained within a div. -->
+    <div id="simulation-container">
+      <!-- The simulation is drawn on a canvas. -->
+      <canvas id="antCanvas"></canvas>
+
+      <!-- The controls are contained within a div. -->
+      <div id="controls">
+        <!-- Each button has a button class. -->
+        <button class="button" onclick="switchMode('placingNests')">
+          Place Nests
+        </button>
+        <button class="button" onclick="switchMode('placingFood')">
+          Place Food
+        </button>
+        <button class="button" onclick="switchMode('placingObstacles')">
+          Place Obstacles
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
