@@ -43,31 +43,30 @@
     </div>
 
     <script>
-      const currentVersion = '1.0.0'; // Update this with your current deployed version
+      const currentVersion = '1.0.0'; // Make sure this is the version users are currently on
 
+      function checkForUpdates() {
+        // Fetch the version.txt file with a cache-busting query parameter
+        fetch(`/version.txt?timestamp=${new Date().getTime()}`)
+          .then((response) => response.text())
+          .then((latestVersion) => {
+            // Trim whitespace and compare versions
+            const trimmedLatestVersion = latestVersion.trim();
+            console.log(
+              `Current version: ${currentVersion}, Latest version: ${trimmedLatestVersion}`
+            );
+            if (trimmedLatestVersion !== currentVersion) {
+              document.getElementById('updateNotification').style.display =
+                'block';
+            }
+          })
+          .catch((error) => console.error('Error fetching version:', error));
+      }
+
+      // Check for updates on initial load and periodically after that
       document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('refreshButton').onclick = function () {
-          window.location.reload(true);
-        };
-
-        // Function to check for updates
-        function checkForUpdates() {
-          fetch('/version.txt') // Make sure the path to version.txt is correct
-            .then((response) => response.text())
-            .then((latestVersion) => {
-              if (latestVersion.trim() !== currentVersion) {
-                document.getElementById('updateNotification').style.display =
-                  'block';
-              }
-            })
-            .catch((error) => console.error('Error fetching version:', error));
-        }
-
-        // Check for updates periodically
-        setInterval(checkForUpdates, 30000); // Check every half minute
-
-        // Initial update check
         checkForUpdates();
+        setInterval(checkForUpdates, 30000); // Check every minute
       });
     </script>
   </body>
