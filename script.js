@@ -168,34 +168,87 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    move() {
-      if (this.state === 'searching') {
-        const food = this.isFoodNearby();
-        if (food) {
-          this.moveTowards(food);
-          if (this.isAtLocation(food)) {
-            this.state = 'carryingFood';
-            food.amount--;
-          }
-        } else {
-          this.followPheromoneTrail();
-          this.randomWalk();
-        }
-      } else if (this.state === 'carryingFood') {
-        if (this.isNearObstacle()) {
-          this.avoidObstacle();
-        } else {
-          this.moveTowards(this.nest.position);
-        }
+    applyConfinementForce() {
+      const edgeThreshold = 50; // Distance from the edge where the force starts applying
+      const center = { x: canvas.width / 2, y: canvas.height / 2 };
 
-        if (this.isAtLocation(this.nest.position)) {
-          this.nest.depositFood();
-          this.state = 'searching';
+      if (
+        this.position.x < edgeThreshold ||
+        this.position.x > canvas.width - edgeThreshold
+      ) {
+        const forceDirection = this.position.x < canvas.width / 2 ? 1 : -1;
+        this.velocity.x += forceDirection * 0.1; // Adjust the force strength as needed
+      }
+
+      if (
+        this.position.y < edgeThreshold ||
+        this.position.y > canvas.height - edgeThreshold
+      ) {
+        const forceDirection = this.position.y < canvas.height / 2 ? 1 : -1;
+        this.velocity.y += forceDirection * 0.1; // Adjust the force strength as needed
+      }
+    }
+
+    move() {
+      // Check for collisions and boundaries first
+      if (this.willCollideWithObstacle() || !this.isInsideCanvasBounds()) {
+        this.avoidObstacle();
+      } else {
+        // Normal behavior depending on the state
+        if (this.state === 'searching') {
+          const food = this.isFoodNearby();
+          if (food) {
+            this.moveTowards(food);
+            if (this.isAtLocation(food)) {
+              this.state = 'carryingFood';
+              food.amount--;
+            }
+          } else {
+            this.followPheromoneTrail();
+            this.randomWalk();
+          }
+        } else if (this.state === 'carryingFood') {
+          this.moveTowards(this.nest.position);
+          if (this.isAtLocation(this.nest.position)) {
+            this.nest.depositFood();
+            this.state = 'searching';
+          }
         }
       }
-      // Continue with pheromone updating and bounds checking
       this.updatePheromoneGrid();
       this.checkBounds();
+    }
+
+    isInsideCanvasBounds() {
+      const nextX = this.position.x + this.velocity.x * this.speed;
+      const nextY = this.position.y + this.velocity.y * this.speed;
+      return (
+        nextX >= 0 &&
+        nextX <= canvas.width &&
+        nextY >= 0 &&
+        nextY <= canvas.height
+      );
+    }
+
+    applyConfinementForce() {
+      const edgeThreshold = 50; // Distance from the edge where the force starts applying
+      const center = { x: canvas.width / 2, y: canvas.height / 2 };
+
+      if (
+        this.position.x < edgeThreshold ||
+        this.position.x > canvas.width - edgeThreshold
+      ) {
+        const forceDirection = this.position.x < canvas.width / 2 ? 1 : -1;
+        this.velocity.x += forceDirection * 0.1; // Adjust the force strength as needed
+      }
+
+      if (
+        this.position.y < edgeThreshold ||
+        this.position.y > canvas.height - edgeThreshold
+      ) {
+        const forceDirection = this.position.y < canvas.height / 2 ? 1 : -1;
+        this.velocity.y += forceDirection * 0.1; // Adjust the force strength as needed
+      }
     }
 
     isNearObstacle() {
@@ -216,22 +269,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     avoidObstacle() {
-      // A simple avoidance strategy that needs to be refined for your specific use case
-      // The ant will turn left or right when detecting an obstacle ahead
-      const turnAngle = Math.PI / 2; // Turn 90 degrees
-      const turnDirection = Math.random() < 0.5 ? 1 : -1; // Randomly choose left or right
+      // Reflect the velocity vector off the obstacle or boundary
+      this.velocity.x = -this.velocity.x;
+      this.velocity.y = -this.velocity.y;
 
-      const newVelocity = {
-        x:
-          this.velocity.x * Math.cos(turnAngle) -
-          this.velocity.y * Math.sin(turnAngle) * turnDirection,
-        y:
-          this.velocity.x * Math.sin(turnAngle) +
-          this.velocity.y * Math.cos(turnAngle) * turnDirection,
-      };
-
-      this.velocity = newVelocity;
-      this.moveInDirection(newVelocity);
+      // Small nudge to move the ant away from the collision
+      this.position.x += this.velocity.x * this.speed;
+      this.position.y += this.velocity.y * this.speed;
     }
 
     moveInDirection(direction) {
@@ -324,11 +368,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     checkBounds() {
-      if (this.position.x < 0 || this.position.x > canvas.width) {
-        this.velocity.x *= -1;
+      // Ensure ants turn around when they reach the edge
+      if (this.position.x <= 0 || this.position.x >= canvas.width) {
+        this.velocity.x = -this.velocity.x;
       }
-      if (this.position.y < 0 || this.position.y > canvas.height) {
-        this.velocity.y *= -1;
+      if (this.position.y <= 0 || this.position.y >= canvas.height) {
+        this.velocity.y = -this.velocity.y;
       }
     }
 
